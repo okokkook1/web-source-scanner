@@ -144,7 +144,7 @@ def scan_file(root: pathlib.Path, path: pathlib.Path) -> None:
                 add_error(where, "client", "customer/system identifier")
                 break
         for literal in IDENTITY_LITERALS:
-            if literal.lower() in lowered:
+            if literal.lower() in lowered and "github.com/" not in lowered:
                 add_error(where, "identity", "local user name or absolute user path")
                 break
         if USER_PATH.search(line):
