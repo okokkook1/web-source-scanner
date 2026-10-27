@@ -2,6 +2,14 @@
 
 Rust 中文視窗 + 原生 Semgrep CE Core 本機引擎，針對 C#／ASP.NET MVC 網站，分別產出安全漏洞與程式碼品質／效能報告。
 
+## 下載預先編譯版本
+
+GitHub Releases 提供 Windows x64 可攜版（含原生引擎、規則、授權文件與 SHA-256）：
+
+<https://github.com/okokkook1/web-source-scanner/releases/latest>
+
+解壓後雙擊 `web-source-scanner.exe`；`engine` 資料夾必須與執行檔放在一起。執行檔未簽章，Windows 可能顯示 SmartScreen 提示。
+
 ## 一般使用
 
 1. 保留完整 `web-source-scanner` 資料夾，雙擊 `web-source-scanner.exe`。
