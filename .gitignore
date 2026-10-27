@@ -1,0 +1,31 @@
+# Build and runtime artifacts
+/target/
+/outputs/
+/reports/
+/data/
+
+# Verification records that may reference the scanned customer system
+/VALIDATION.md
+/validation/
+
+# Local tooling
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Packages and scans must never be committed
+*.zip
+*.7z
+*.rar
+*.exe
+*.dll
+*.pdb
+*.log
+*.db
+*.sqlite
+
+# Local environment
+.env
+.env.*

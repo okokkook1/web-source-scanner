@@ -1,0 +1,19 @@
+name: privacy-check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan for customer identifiers, secrets, PII and artifacts
+        run: python scripts/check-publication.py .

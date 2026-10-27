@@ -1,0 +1,93 @@
+rules:
+  - id: ENGINE-SQL-TAINT
+    languages: [csharp]
+    severity: ERROR
+    message: 使用者輸入流向 SQL 查詢（函式內資料流）。請改用參數化查詢。
+    mode: taint
+    pattern-sources:
+      - pattern: Request[$KEY]
+      - pattern: Request.QueryString[$KEY]
+      - pattern: Request.Form[$KEY]
+    pattern-sinks:
+      - pattern: new SqlCommand($SQL, ...)
+      - pattern: DBUtility.GetDBData($SQL)
+      - pattern: $DB.ExecuteSqlCommand($SQL)
+    metadata:
+      category: security
+      cwe: CWE-89
+  - id: ENGINE-COMMAND-TAINT
+    languages: [csharp]
+    severity: ERROR
+    message: 使用者輸入流向系統命令。請採用固定命令與允許清單。
+    mode: taint
+    pattern-sources:
+      - pattern: Request[$KEY]
+      - pattern: Request.QueryString[$KEY]
+      - pattern: Request.Form[$KEY]
+    pattern-sinks:
+      - pattern: Process.Start($ARG, ...)
+      - pattern: new ProcessStartInfo($ARG, ...)
+  - id: ENGINE-PATH-TAINT
+    languages: [csharp]
+    severity: WARNING
+    message: 使用者輸入流向檔案操作。請限制根目錄並驗證正規化路徑。
+    mode: taint
+    pattern-sources:
+      - pattern: Request[$KEY]
+      - pattern: Request.QueryString[$KEY]
+      - pattern: Request.Form[$KEY]
+    pattern-sinks:
+      - pattern: File.ReadAllText($PATH, ...)
+      - pattern: File.Delete($PATH)
+      - pattern: $UPLOAD.SaveAs($PATH)
+  - id: ENGINE-TLS-BYPASS
+    languages: [csharp]
+    severity: ERROR
+    message: 憑證驗證回呼無條件接受憑證。請保留正常 TLS 憑證驗證。
+    pattern-either:
+      - pattern: $OBJ.ServerCertificateValidationCallback = (...) => true
+      - pattern: $OBJ.ServerCertificateCustomValidationCallback = (...) => true
+  - id: ENGINE-WEAK-CRYPTO
+    languages: [csharp]
+    severity: WARNING
+    message: 使用弱雜湊／加密 API。請核對用途並改採適當的現代演算法。
+    pattern-either:
+      - pattern: MD5.Create(...)
+      - pattern: SHA1.Create(...)
+      - pattern: DES.Create(...)
+      - pattern: new MD5CryptoServiceProvider(...)
+  - id: ENGINE-DESERIALIZE
+    languages: [csharp]
+    severity: ERROR
+    message: BinaryFormatter 反序列化具有風險；請改用明確型別與安全序列化格式。
+    patterns:
+      - pattern-inside: |
+          var $BF = new BinaryFormatter(...);
+          ...
+      - pattern: $BF.Deserialize(...)
+  - id: ENGINE-MVC-VALIDATION
+    languages: [csharp]
+    severity: WARNING
+    message: MVC 動作停用 Request Validation。需人工核對輸入驗證與輸出編碼。
+    pattern: |
+      [ValidateInput(false)]
+      $RET $F(...) { ... }
+  - id: ENGINE-RAW-HTML
+    languages: [csharp]
+    severity: WARNING
+    message: 原始 HTML 輸出需人工核對資料來源與清理方式。
+    pattern: Html.Raw(...)
+  - id: ENGINE-JS-EVAL
+    languages: [javascript]
+    severity: WARNING
+    message: 動態程式碼執行需人工核對輸入來源，避免執行不可信字串。
+    pattern-either:
+      - pattern: eval($X)
+      - pattern: new Function(...)
+  - id: ENGINE-JS-HTML
+    languages: [javascript]
+    severity: WARNING
+    message: HTML 字串直接寫入 DOM，需人工核對編碼／清理；純文字請用 textContent。
+    pattern-either:
+      - pattern: $E.innerHTML = $X
+      - pattern: document.write(...)
